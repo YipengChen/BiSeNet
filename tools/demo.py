@@ -42,6 +42,9 @@ to_tensor = T.ToTensor(
     std=(0.2112, 0.2148, 0.2115),
 )
 im = cv2.imread(args.img_path)[:, :, ::-1]
+print("demo image shape: {}".format(im.shape))
+im = cv2.resize(im, (640, 480))
+print("imput image shape: {}".format(im.shape))
 im = to_tensor(dict(im=im, lb=None))['im'].unsqueeze(0).to(device)
 
 # inference
