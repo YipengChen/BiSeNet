@@ -12,9 +12,12 @@ import lib.transform_cv2 as T
 from lib.models import model_factory
 from configs import cfg_factory
 
+import time
+
 torch.set_grad_enabled(False)
 np.random.seed(123)
 
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 # args
 parse = argparse.ArgumentParser()
@@ -31,7 +34,7 @@ palette = np.random.randint(0, 256, (256, 3), dtype=np.uint8)
 net = model_factory[cfg.model_type](19)
 net.load_state_dict(torch.load(args.weight_path, map_location='cpu'))
 net.eval()
-net.cuda()
+net.to(device)
 
 # prepare data
 to_tensor = T.ToTensor(
@@ -39,9 +42,12 @@ to_tensor = T.ToTensor(
     std=(0.2112, 0.2148, 0.2115),
 )
 im = cv2.imread(args.img_path)[:, :, ::-1]
-im = to_tensor(dict(im=im, lb=None))['im'].unsqueeze(0).cuda()
+im = to_tensor(dict(im=im, lb=None))['im'].unsqueeze(0).to(device)
 
 # inference
+start_time = time.time()
 out = net(im)[0].argmax(dim=1).squeeze().detach().cpu().numpy()
+end_time = time.time()
+print("inference_time:{}".format(end_time - start_time))
 pred = palette[out]
 cv2.imwrite('./res.jpg', pred)

@@ -1,0 +1,4 @@
+pytorch
+pillow
+# conda install torchvison -c pytorch
+# pip install opencv-python
