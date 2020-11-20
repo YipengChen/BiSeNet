@@ -45,9 +45,11 @@ im = cv2.imread(args.img_path)[:, :, ::-1]
 im = to_tensor(dict(im=im, lb=None))['im'].unsqueeze(0).to(device)
 
 # inference
-start_time = time.time()
-out = net(im)[0].argmax(dim=1).squeeze().detach().cpu().numpy()
-end_time = time.time()
-print("inference_time:{}".format(end_time - start_time))
+inference_num = 10
+for i in range(inference_num):
+    start_time = time.time()
+    out = net(im)[0].argmax(dim=1).squeeze().detach().cpu().numpy()
+    end_time = time.time()
+    print("inference_time:{}".format(end_time - start_time))
 pred = palette[out]
 cv2.imwrite('./res.jpg', pred)
